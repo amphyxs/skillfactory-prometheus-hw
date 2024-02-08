@@ -1,0 +1,26 @@
+groups: 
+- name: portalCheck
+  rules:
+  - alert: PortalStatusCode
+    expr: probe_http_status_code != (probe_http_status_code offset 5m)
+    for: 0
+    labels:
+      severity: critical
+    annotations:
+      summary: "Return status code of portal changed"
+      description: "VALUE = {{ $value }}  LABELS: {{ $labels }}"
+  - alert: LongResponse
+    expr: sum(probe_http_duration_seconds) > 5
+    for: 0
+    labels:
+      severity: warning
+    annotations:
+      summary: "It took more than 5 seconds to get a response from portal"
+      description: "May be it's under high load"
+  - alert: ServerRestarted
+    expr: sum(time() - node_boot_time_seconds{instance="node-exporter:9100"}) == 0
+    for: 0
+    labels:
+      severity: warning
+    annotations:
+      summary: "Node restarted"
